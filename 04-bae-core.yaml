@@ -16,7 +16,17 @@ spec:
         - name: logic-proxy
           image: fiware/biz-ecosystem-logic-proxy:9.15.2
           env:
-            # Doel 1: VC Login via jouw Keycloak
+            # Database
+            - name: MONGODB_HOST
+              value: "mongodb-bae"
+            - name: MONGODB_PORT
+              value: "27017"
+            - name: MONGODB_USER
+              value: "root"
+            - name: MONGODB_PASS
+              value: "password"
+            
+            # Keycloak / SIOP (Doel 1)
             - name: IDM_URL
               value: "https://login.tunewi.se"
             - name: IDM_REALM
@@ -25,9 +35,23 @@ spec:
               value: "business-ecosystem"
             - name: OIDC_CLIENT_SECRET
               value: "JxAiyYRXic4S6arkV191kMaPzMUJ5t5S"
-            # Doel 2: Koppeling naar Database
-            - name: MONGODB_HOST
-              value: "mongodb-bae"
-            # Doel 3: Koppeling naar TMForum API's
+            
+            # TMForum API Koppelingen (Doel 2 & 3)
+            - name: TMF_PARTY_HOST
+              value: "tmforum-party-catalog"
             - name: TMF_CATALOG_HOST
               value: "tmforum-product-catalog"
+            - name: TMF_INVENTORY_HOST
+              value: "tmforum-product-inventory"
+            - name: TMF_ORDERING_HOST
+              value: "tmforum-product-ordering-management"
+            - name: TMF_CUSTOMER_HOST
+              value: "tmforum-customer-management"
+            - name: TMF_ACCOUNT_HOST
+              value: "tmforum-account"
+            - name: TMF_RESOURCE_CATALOG_HOST
+              value: "tmforum-resource-catalog"
+            - name: TMF_SERVICE_CATALOG_HOST
+              value: "tmforum-service-catalog"
+          ports:
+            - containerPort: 8004
