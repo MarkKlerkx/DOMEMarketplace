@@ -1,32 +1,43 @@
-# Voorbeeld voor de Product Catalog (herhaal dit voor Ordering en Party)
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: tmforum-product-catalog
-  namespace: marketplace
-spec:
-  selector:
-    matchLabels:
-      app: tmforum-product-catalog
-  template:
-    metadata:
-      labels:
-        app: tmforum-product-catalog
-    spec:
-      containers:
-        - name: api
-          image: quay.io/fiware/tmforum-product-catalog:0.15.0
-          env:
-            - name: NGSI_LD_URL
-              value: "http://scorpio:1026"
+# TMForum API Stack voor MarkKlerkx/DOMEMarketplace
+# Alle services wijzen naar http://scorpio:1026
 ---
 apiVersion: v1
-kind: Service
-metadata:
-  name: tmforum-product-catalog
-  namespace: marketplace
-spec:
-  ports:
-    - port: 8080
-  selector:
-    app: tmforum-product-catalog
+kind: List
+items:
+{{- $services := list "party-catalog" "product-catalog" "product-inventory" "product-ordering-management" "customer-management" "account" "usage-management" "usage-consumption" "resource-catalog" "resource-function-activation" "resource-inventory" "service-catalog" "agreement" }}
+{{- range $service := $services }}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-{{ $service }}
+    namespace: marketplace
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: tmforum-{{ $service }}
+    template:
+      metadata:
+        labels:
+          app: tmforum-{{ $service }}
+      spec:
+        containers:
+          - name: api
+            image: quay.io/fiware/tmforum-{{ $service }}:0.15.0
+            env:
+              - name: NGSI_LD_URL
+                value: "http://scorpio:1026"
+            ports:
+              - containerPort: 8080
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-{{ $service }}
+    namespace: marketplace
+  spec:
+    ports:
+      - port: 8080
+        targetPort: 8080
+    selector:
+      app: tmforum-{{ $service }}
+{{- end }}
