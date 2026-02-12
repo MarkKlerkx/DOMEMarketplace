@@ -186,33 +186,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-usage-management}
 
-# 8. Usage Consumption
-- apiVersion: apps/v1
-  kind: Deployment
-  metadata:
-    name: tmforum-usage-consumption
-    namespace: marketplace
-  spec:
-    selector:
-      matchLabels: {app: tmforum-usage-consumption}
-    template:
-      metadata:
-        labels: {app: tmforum-usage-consumption}
-      spec:
-        containers:
-        - name: api
-          image: quay.io/fiware/tmforum-usage-consumption:latest
-          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
-- apiVersion: v1
-  kind: Service
-  metadata:
-    name: tmforum-usage-consumption
-    namespace: marketplace
-  spec:
-    ports: [{port: 8080}]
-    selector: {app: tmforum-usage-consumption}
-
-# 9. Resource Catalog
+# 8. Resource Catalog
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -238,7 +212,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-catalog}
 
-# 10. Resource Function Activation
+# 9. Resource Function Activation
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -264,7 +238,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-function-activation}
 
-# 11. Resource Inventory
+# 10. Resource Inventory
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -290,7 +264,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-inventory}
 
-# 12. Service Catalog
+# 11. Service Catalog
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -316,7 +290,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-service-catalog}
 
-# 13. Agreement Management
+# 12. Agreement Management
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
