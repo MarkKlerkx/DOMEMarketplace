@@ -47,7 +47,6 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-            # DB configuratie conform BAEConfig.pdf p.4
             - name: BAE_CB_MONGO_SERVER
               value: "mongodb-bae"
             - name: BAE_CB_MONGO_PORT
@@ -61,7 +60,7 @@ spec:
             - name: BAE_CB_PAYMENT_METHOD
               value: "None"
             - name: BAE_SERVICE_HOST
-              value: "https://dome.ascent-it.com/"
+              value: "https://dome.ascent-it.com"
           ports:
             - containerPort: 8006
 ---
@@ -86,29 +85,53 @@ spec:
           env:
             - name: NODE_ENV
               value: "production"
-            # Host en OAuth volgens BAEConfig.pdf p.10 & 16
+
+            # Basis URL van de marketplace zelf
             - name: BAE_SERVICE_HOST
-              value: "https://dome.ascent-it.com/"
+              value: "https://dome.ascent-it.com"
+
+            # OAUTH2 / KEYCLOAK
+            - name: BAE_LP_OAUTH2_PROVIDER
+              value: "keycloak"
+
+            # Basis-URL van Keycloak (zonder /realms/...)
             - name: BAE_LP_OAUTH2_SERVER
               value: "https://login.tunewi.se"
+
+            # Realm forceren: voorkomt fallback naar 'master'
+            - name: BAE_LP_OIDC_REALM
+              value: "ascentDataSpaceTrust"
+
+            # Client-config voor de BAE in Keycloak
             - name: BAE_LP_OAUTH2_CLIENT_ID
               value: "business-ecosystem"
+              
             - name: BAE_LP_OAUTH2_CLIENT_SECRET
               value: "JxAiyYRXic4S6arkV191kMaPzMUJ5t5S"
+
+            # Callback-URL zoals in de Keycloak-client geregistreerd
             - name: BAE_LP_OAUTH2_CALLBACK
-              value: "https://dome.ascent-it.com/auth/keycloak/callback"
-            # Database configuratie (Auth Fix: admin db gebruiken voor root login)
+              value: "https://dome.ascent-it.com:30080/auth/keycloak/callback"
+
+            # Roles
+            - name: BAE_LP_OAUTH2_ADMIN_ROLE
+              value: "admin"
+            - name: BAE_LP_OAUTH2_SELLER_ROLE
+              value: "seller"
+            - name: BAE_LP_OAUTH2_ORG_ADMIN_ROLE
+              value: "orgAdmin"
+
+            # Database
             - name: BAE_LP_MONGO_SERVER
               value: "mongodb-bae"
-            - name: BAE_LP_MONGO_PORT
-              value: "27017"
+            - name: BAE_LP_MONGO_DB
+              value: "admin"
             - name: BAE_LP_MONGO_USER
               value: "root"
             - name: BAE_LP_MONGO_PASS
               value: "password"
-            - name: BAE_LP_MONGO_DB
-              value: "admin"
-            # Koppeling met de Charging Backend
+
+            # Link naar Charging Backend
             - name: BAE_CB_LOCAL_SITE
               value: "http://bae-charging-backend:8006/"
           ports:
