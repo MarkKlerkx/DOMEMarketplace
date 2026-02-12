@@ -1,3 +1,71 @@
+# 1. Charging Backend Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: bae-charging-backend
+  namespace: marketplace
+spec:
+  ports:
+    - port: 8006
+      targetPort: 8006
+  selector:
+    app: bae-charging-backend
+---
+# 2. BAE Marketplace Service (NodePort)
+apiVersion: v1
+kind: Service
+metadata:
+  name: bae-marketplace-test
+  namespace: marketplace
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8004
+      nodePort: 30080
+  selector:
+    app: bae-marketplace
+---
+# 3. Charging Backend Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bae-charging-backend
+  namespace: marketplace
+spec:
+  selector:
+    matchLabels:
+      app: bae-charging-backend
+  template:
+    metadata:
+      labels:
+        app: bae-charging-backend
+    spec:
+      containers:
+        - name: charging-backend
+          image: fiware/biz-ecosystem-charging-backend:latest
+          env:
+            - name: NODE_ENV
+              value: "production"
+            # DB configuratie conform BAEConfig.pdf p.4
+            - name: BAE_CB_MONGO_SERVER
+              value: "mongodb-bae"
+            - name: BAE_CB_MONGO_PORT
+              value: "27017"
+            - name: BAE_CB_MONGO_DB
+              value: "admin"
+            - name: BAE_CB_MONGO_USER
+              value: "root"
+            - name: BAE_CB_MONGO_PASS
+              value: "password"
+            - name: BAE_CB_PAYMENT_METHOD
+              value: "None"
+            - name: BAE_SERVICE_HOST
+              value: "https://dome.ascent-it.com/"
+          ports:
+            - containerPort: 8006
+---
+# 4. Logic Proxy (BAE) Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,38 +82,34 @@ spec:
     spec:
       containers:
         - name: logic-proxy
-          # LET OP: dit is de gecorrigeerde naam zonder '-api-'
-          image: fiware/biz-ecosystem-logic-proxy:9.1.4-dome
-          imagePullPolicy: Always
+          image: fiware/biz-ecosystem-logic-proxy:latest
           env:
             - name: NODE_ENV
               value: "production"
-            - name: BAE_LP_PORT
-              value: "8004"
-            - name: MONGODB_HOST
-              value: "mongodb-bae"
-            - name: MONGODB_PORT
-              value: "27017"
-            - name: MONGODB_USER
-              value: "root"
-            - name: MONGODB_PASS
-              value: "password"
-            - name: IDM_URL
+            # Host en OAuth volgens BAEConfig.pdf p.10 & 16
+            - name: BAE_SERVICE_HOST
+              value: "https://dome.ascent-it.com/"
+            - name: BAE_LP_OAUTH2_SERVER
               value: "https://login.tunewi.se"
-            - name: IDM_REALM
-              value: "ascentDataSpaceTrust"
-            - name: OIDC_CLIENT_ID
+            - name: BAE_LP_OAUTH2_CLIENT_ID
               value: "business-ecosystem"
-            - name: OIDC_CLIENT_SECRET
+            - name: BAE_LP_OAUTH2_CLIENT_SECRET
               value: "JxAiyYRXic4S6arkV191kMaPzMUJ5t5S"
-            # Hostnames voor de 12 TMForum services
-            - name: TMF_PARTY_HOST
-              value: "tmforum-party-catalog"
-            - name: TMF_CATALOG_HOST
-              value: "tmforum-product-catalog"
-            - name: TMF_INVENTORY_HOST
-              value: "tmforum-product-inventory"
-            - name: TMF_ORDERING_HOST
-              value: "tmforum-product-ordering-management"
+            - name: BAE_LP_OAUTH2_CALLBACK
+              value: "https://dome.ascent-it.com/auth/keycloak/callback"
+            # Database configuratie (Auth Fix: admin db gebruiken voor root login)
+            - name: BAE_LP_MONGO_SERVER
+              value: "mongodb-bae"
+            - name: BAE_LP_MONGO_PORT
+              value: "27017"
+            - name: BAE_LP_MONGO_USER
+              value: "root"
+            - name: BAE_LP_MONGO_PASS
+              value: "password"
+            - name: BAE_LP_MONGO_DB
+              value: "admin"
+            # Koppeling met de Charging Backend
+            - name: BAE_CB_LOCAL_SITE
+              value: "http://bae-charging-backend:8006/"
           ports:
             - containerPort: 8004

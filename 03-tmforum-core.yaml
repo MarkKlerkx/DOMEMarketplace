@@ -186,7 +186,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-usage-management}
 
-# 8. Resource Catalog
+# 9. Resource Catalog
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -212,7 +212,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-catalog}
 
-# 9. Resource Function Activation
+# 10. Resource Function Activation
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -238,7 +238,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-function-activation}
 
-# 10. Resource Inventory
+# 11. Resource Inventory
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -264,7 +264,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-resource-inventory}
 
-# 11. Service Catalog
+# 12. Service Catalog
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
@@ -290,7 +290,7 @@ items:
     ports: [{port: 8080}]
     selector: {app: tmforum-service-catalog}
 
-# 12. Agreement Management
+# 13. Agreement Management
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
