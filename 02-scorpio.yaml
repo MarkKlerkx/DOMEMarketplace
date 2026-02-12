@@ -16,8 +16,14 @@ spec:
         - name: scorpio
           image: scorpiobroker/all-in-one-runner:java-kafka-4.1.10
           env:
-            - name: DBHOST
-              value: postgis # Zorg dat je een simpele postgis pod hebt draaien
+            - name: DB_HOST
+              value: "postgis"
+            - name: DB_USER
+              value: "scorpio"
+            - name: DB_PASSWORD
+              value: "scorpio"
+            - name: DB_NAME
+              value: "scorpio"
             - name: QUARKUS_LOG_LEVEL
               value: INFO
           ports:
