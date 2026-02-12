@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-data-pvc
+  namespace: marketplace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-bae
+  namespace: marketplace
+spec:
+  selector:
+    matchLabels:
+      app: mongodb-bae
+  template:
+    metadata:
+      labels:
+        app: mongodb-bae
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:4.4 # Stabiele versie die goed werkt met de BAE logic-proxy
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: "root"
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: "password"
+            - name: MONGO_INITDB_DATABASE
+              value: "bae"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: storage
+              mountPath: /data/db
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: mongodb-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-bae
+  namespace: marketplace
+spec:
+  selector:
+    app: mongodb-bae
+  ports:
+    - port: 27017
+      targetPort: 27017
