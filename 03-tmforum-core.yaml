@@ -201,7 +201,7 @@ items:
       spec:
         containers:
         - name: api
-          image: quay.io/fiware/tmforum-usage-consumption:0.15.0
+          image: quay.io/fiware/tmforum-usage-consumption:latest
           env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
 - apiVersion: v1
   kind: Service
