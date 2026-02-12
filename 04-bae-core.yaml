@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
         - name: logic-proxy
-          image: fiware/biz-ecosystem-logic-proxy:9.15.2
+          image: fiware/biz-api-ecosystem-logic-proxy:9.15.2
           env:
-            # Database
+            # MongoDB koppeling
             - name: MONGODB_HOST
               value: "mongodb-bae"
             - name: MONGODB_PORT
@@ -26,7 +26,7 @@ spec:
             - name: MONGODB_PASS
               value: "password"
             
-            # Keycloak / SIOP (Doel 1)
+            # Keycloak / SIOP instellingen (Doel 1)
             - name: IDM_URL
               value: "https://login.tunewi.se"
             - name: IDM_REALM
@@ -49,9 +49,15 @@ spec:
               value: "tmforum-customer-management"
             - name: TMF_ACCOUNT_HOST
               value: "tmforum-account"
+            - name: TMF_USAGE_HOST
+              value: "tmforum-usage-management"
             - name: TMF_RESOURCE_CATALOG_HOST
               value: "tmforum-resource-catalog"
             - name: TMF_SERVICE_CATALOG_HOST
               value: "tmforum-service-catalog"
+            - name: TMF_RESOURCE_INVENTORY_HOST
+              value: "tmforum-resource-inventory"
+            - name: TMF_AGREEMENT_HOST
+              value: "tmforum-agreement"
           ports:
             - containerPort: 8004
