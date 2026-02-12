@@ -1,43 +1,343 @@
-# TMForum API Stack voor MarkKlerkx/DOMEMarketplace
-# Alle services wijzen naar http://scorpio:1026
----
+# ------------------------------------------------------------------
+# TMForum API Stack - MarkKlerkx/DOMEMarketplace
+# ------------------------------------------------------------------
 apiVersion: v1
 kind: List
 items:
-{{- $services := list "party-catalog" "product-catalog" "product-inventory" "product-ordering-management" "customer-management" "account" "usage-management" "usage-consumption" "resource-catalog" "resource-function-activation" "resource-inventory" "service-catalog" "agreement" }}
-{{- range $service := $services }}
+# 1. Party Catalog
 - apiVersion: apps/v1
   kind: Deployment
   metadata:
-    name: tmforum-{{ $service }}
+    name: tmforum-party-catalog
     namespace: marketplace
   spec:
-    replicas: 1
     selector:
-      matchLabels:
-        app: tmforum-{{ $service }}
+      matchLabels: {app: tmforum-party-catalog}
     template:
       metadata:
-        labels:
-          app: tmforum-{{ $service }}
+        labels: {app: tmforum-party-catalog}
       spec:
         containers:
-          - name: api
-            image: quay.io/fiware/tmforum-{{ $service }}:0.15.0
-            env:
-              - name: NGSI_LD_URL
-                value: "http://scorpio:1026"
-            ports:
-              - containerPort: 8080
+        - name: api
+          image: quay.io/fiware/tmforum-party-catalog:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
 - apiVersion: v1
   kind: Service
   metadata:
-    name: tmforum-{{ $service }}
+    name: tmforum-party-catalog
     namespace: marketplace
   spec:
-    ports:
-      - port: 8080
-        targetPort: 8080
+    ports: [{port: 8080}]
+    selector: {app: tmforum-party-catalog}
+
+# 2. Product Catalog
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-product-catalog
+    namespace: marketplace
+  spec:
     selector:
-      app: tmforum-{{ $service }}
-{{- end }}
+      matchLabels: {app: tmforum-product-catalog}
+    template:
+      metadata:
+        labels: {app: tmforum-product-catalog}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-product-catalog:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-product-catalog
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-product-catalog}
+
+# 3. Product Inventory
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-product-inventory
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-product-inventory}
+    template:
+      metadata:
+        labels: {app: tmforum-product-inventory}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-product-inventory:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-product-inventory
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-product-inventory}
+
+# 4. Product Ordering Management
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-product-ordering-management
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-product-ordering-management}
+    template:
+      metadata:
+        labels: {app: tmforum-product-ordering-management}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-product-ordering-management:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-product-ordering-management
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-product-ordering-management}
+
+# 5. Customer Management
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-customer-management
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-customer-management}
+    template:
+      metadata:
+        labels: {app: tmforum-customer-management}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-customer-management:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-customer-management
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-customer-management}
+
+# 6. Account
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-account
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-account}
+    template:
+      metadata:
+        labels: {app: tmforum-account}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-account:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-account
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-account}
+
+# 7. Usage Management
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-usage-management
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-usage-management}
+    template:
+      metadata:
+        labels: {app: tmforum-usage-management}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-usage-management:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-usage-management
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-usage-management}
+
+# 8. Usage Consumption
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-usage-consumption
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-usage-consumption}
+    template:
+      metadata:
+        labels: {app: tmforum-usage-consumption}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-usage-consumption:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-usage-consumption
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-usage-consumption}
+
+# 9. Resource Catalog
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-resource-catalog
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-resource-catalog}
+    template:
+      metadata:
+        labels: {app: tmforum-resource-catalog}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-resource-catalog:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-resource-catalog
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-resource-catalog}
+
+# 10. Resource Function Activation
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-resource-function-activation
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-resource-function-activation}
+    template:
+      metadata:
+        labels: {app: tmforum-resource-function-activation}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-resource-function-activation:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-resource-function-activation
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-resource-function-activation}
+
+# 11. Resource Inventory
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-resource-inventory
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-resource-inventory}
+    template:
+      metadata:
+        labels: {app: tmforum-resource-inventory}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-resource-inventory:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-resource-inventory
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-resource-inventory}
+
+# 12. Service Catalog
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-service-catalog
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-service-catalog}
+    template:
+      metadata:
+        labels: {app: tmforum-service-catalog}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-service-catalog:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-service-catalog
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-service-catalog}
+
+# 13. Agreement Management
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: tmforum-agreement
+    namespace: marketplace
+  spec:
+    selector:
+      matchLabels: {app: tmforum-agreement}
+    template:
+      metadata:
+        labels: {app: tmforum-agreement}
+      spec:
+        containers:
+        - name: api
+          image: quay.io/fiware/tmforum-agreement:0.15.0
+          env: [{name: NGSI_LD_URL, value: "http://scorpio:1026"}]
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: tmforum-agreement
+    namespace: marketplace
+  spec:
+    ports: [{port: 8080}]
+    selector: {app: tmforum-agreement}
