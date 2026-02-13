@@ -1,4 +1,3 @@
-# 1. Charging Backend Service
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,12 +5,12 @@ metadata:
   namespace: marketplace
 spec:
   ports:
-    - port: 8006
+    - name: standard
+      port: 8006
       targetPort: 8006
   selector:
     app: bae-charging-backend
 ---
-# 2. BAE Marketplace Service (NodePort)
 apiVersion: v1
 kind: Service
 metadata:
@@ -26,7 +25,6 @@ spec:
   selector:
     app: bae-marketplace
 ---
-# 3. Charging Backend Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -57,14 +55,11 @@ spec:
               value: "root"
             - name: BAE_CB_MONGO_PASS
               value: "password"
-            - name: BAE_CB_PAYMENT_METHOD
-              value: "None"
             - name: BAE_SERVICE_HOST
-              value: "https://dome.ascent-it.com"
+              value: "https://dome.ascent-it.com/"
           ports:
             - containerPort: 8006
 ---
-# 4. Logic Proxy (BAE) Deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -79,48 +74,66 @@ spec:
       labels:
         app: bae-marketplace
     spec:
+      initContainers:
+      - name: init-network
+        image: busybox:1.28
+        command: ['sh', '-c', 'nslookup bae-charging-backend.marketplace.svc.cluster.local | grep "Address" | tail -n1 | awk "{print \$3}" > /etc/network-info/backend-ip']
+        volumeMounts:
+        - name: network-info
+          mountPath: /etc/network-info
       containers:
         - name: logic-proxy
           image: fiware/biz-ecosystem-logic-proxy:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              BACKEND_IP=$(cat /etc/network-info/backend-ip)
+              echo "$BACKEND_IP host.docker.internal" >> /etc/hosts
+              echo "$BACKEND_IP charging.docker" >> /etc/hosts
+              if [ -f /entrypoint.sh ]; then exec /entrypoint.sh; else exec ./entrypoint.sh; fi
           env:
             - name: NODE_ENV
               value: "production"
-
-            # Basis URL van de marketplace zelf
             - name: BAE_SERVICE_HOST
-              value: "https://dome.ascent-it.com"
-
-            # OAUTH2 / KEYCLOAK
+              value: "https://dome.ascent-it.com/"
+            - name: TRUST_PROXY
+              value: "true"
+            # Backend Koppeling
+            - name: BAE_CB_HOST
+              value: "bae-charging-backend"
+            - name: BAE_CB_PORT
+              value: "8006"
+            - name: BAE_CB_LOCAL_SITE
+              value: "http://bae-charging-backend:8006/"
+            # TM Forum API's
+            - name: BAE_LP_CATALOG_HOST
+              value: "http://bae-charging-backend:8006"
+            - name: BAE_LP_INVENTORY_HOST
+              value: "http://bae-charging-backend:8006"
+            - name: BAE_LP_ORDERING_HOST
+              value: "http://bae-charging-backend:8006"
+            # OAUTH2 / Keycloak Config
             - name: BAE_LP_OAUTH2_PROVIDER
               value: "keycloak"
-
-            # Basis-URL van Keycloak (zonder /realms/...)
             - name: BAE_LP_OAUTH2_SERVER
               value: "https://login.tunewi.se"
-
-            # Realm forceren: voorkomt fallback naar 'master'
             - name: BAE_LP_OIDC_REALM
               value: "ascentDataSpaceTrust"
-
-            # Client-config voor de BAE in Keycloak
             - name: BAE_LP_OAUTH2_CLIENT_ID
               value: "business-ecosystem"
-              
             - name: BAE_LP_OAUTH2_CLIENT_SECRET
               value: "JxAiyYRXic4S6arkV191kMaPzMUJ5t5S"
-
-            # Callback-URL zoals in de Keycloak-client geregistreerd
             - name: BAE_LP_OAUTH2_CALLBACK
-              value: "https://dome.ascent-it.com:30080/auth/keycloak/callback"
-
-            # Roles
+              value: "https://dome.ascent-it.com/auth/keycloak/callback"
+            # Rollen Mapping
             - name: BAE_LP_OAUTH2_ADMIN_ROLE
               value: "admin"
             - name: BAE_LP_OAUTH2_SELLER_ROLE
               value: "seller"
+            - name: BAE_LP_OAUTH2_CONSUMER_ROLE
+              value: "consumer"
             - name: BAE_LP_OAUTH2_ORG_ADMIN_ROLE
               value: "orgAdmin"
-
             # Database
             - name: BAE_LP_MONGO_SERVER
               value: "mongodb-bae"
@@ -130,9 +143,11 @@ spec:
               value: "root"
             - name: BAE_LP_MONGO_PASS
               value: "password"
-
-            # Link naar Charging Backend
-            - name: BAE_CB_LOCAL_SITE
-              value: "http://bae-charging-backend:8006/"
+          volumeMounts:
+          - name: network-info
+            mountPath: /etc/network-info
           ports:
             - containerPort: 8004
+      volumes:
+      - name: network-info
+        emptyDir: {}
